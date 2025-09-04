@@ -7,7 +7,7 @@ const ImageComponent = ({ src, alt }) => (
     alt={alt}
     width={600}
     height={400}
-    className="w-full m-2 object-cover"
+    className="w-full my-4 object-cover"
   />
 );
 
@@ -70,7 +70,7 @@ export class ImageNode extends DecoratorNode {
     if (this.__alt) {
       imgElement.setAttribute("alt", this.__alt);
     }
-    imgElement.className = "w-full m-2";
+    imgElement.className = "w-full my-4";
     // return should have "element" property
     return { element: imgElement };
   }

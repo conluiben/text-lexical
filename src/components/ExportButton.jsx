@@ -16,7 +16,10 @@ const ExportButton = ({ updateHtml }) => {
   };
 
   return (
-    <button onClick={handleClickExport} className="bg-red-200 p-4">
+    <button
+      onClick={handleClickExport}
+      className="bg-red-200 hover:bg-red-300 p-2"
+    >
       Export Content
     </button>
   );

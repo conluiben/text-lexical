@@ -19,7 +19,7 @@ const ImageToolbarPlugin = () => {
           insertImage(url, "A user-inserted image");
         }
       }}
-      className={`px-2 py-1 rounded-lg`}
+      className={`px-2 py-1 bg-yellow-100 hover:bg-yellow-200`}
     >
       Insert Image
     </button>
