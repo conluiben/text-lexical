@@ -11,6 +11,7 @@ import { $createHeadingNode, HeadingNode } from "@lexical/rich-text";
 import { $getSelection, $isElementNode, $isRangeSelection } from "lexical";
 import { $setBlocksType } from "@lexical/selection";
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
+import { NodeEventPlugin } from "@lexical/react/LexicalNodeEventPlugin";
 import {
   $isListNode,
   INSERT_ORDERED_LIST_COMMAND,
@@ -26,6 +27,8 @@ import ImageToolbarPlugin from "./ImageToolbarPlugin";
 import { $generateHtmlFromNodes } from "@lexical/html";
 import ExportButton from "./ExportButton";
 import { $findMatchingParent } from "@lexical/utils";
+import { LinkNode } from "@lexical/link";
+import AlignmentToolbarPlugin from "./AlignmentToolbarPlugin";
 
 const theme = {
   paragraph: "mb-0",
@@ -163,10 +166,18 @@ const Editor = () => {
   return (
     <div>
       <LexicalComposer initialConfig={initialConfig}>
+        <NodeEventPlugin
+          nodeType={LinkNode}
+          eventType={"click"}
+          eventListener={(e) => {
+            alert("Nice!");
+          }}
+        />
         <div className="flex items-center justify-between mb-2">
           <div className="flex">
             <HeadingPlugin />
             <ListToolbarPlugin />
+            <AlignmentToolbarPlugin />
             <BoldToolbarPlugin />
             <ItalicToolbarPlugin />
             <ImageToolbarPlugin />
