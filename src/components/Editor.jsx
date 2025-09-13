@@ -29,6 +29,8 @@ import ExportButton from "./ExportButton";
 import { $findMatchingParent } from "@lexical/utils";
 import { LinkNode } from "@lexical/link";
 import AlignmentToolbarPlugin from "./AlignmentToolbarPlugin";
+import { PDFNode } from "./nodes/PDFNode";
+import PDFToolbarPlugin from "./PDFToolbarPlugin";
 
 const theme = {
   paragraph: "mb-0",
@@ -159,7 +161,7 @@ const Editor = () => {
     namespace: "MyEditor",
     theme,
     onError,
-    nodes: [HeadingNode, ListNode, ListItemNode, ImageNode],
+    nodes: [HeadingNode, ListNode, ListItemNode, ImageNode, PDFNode],
   };
   const [htmlString, setHtmlString] = useState({ __html: "" });
 
@@ -182,6 +184,7 @@ const Editor = () => {
             <ItalicToolbarPlugin />
             <ImageToolbarPlugin />
             <ListPlugin />
+            <PDFToolbarPlugin />
           </div>
           <ExportButton updateHtml={setHtmlString} />
         </div>
