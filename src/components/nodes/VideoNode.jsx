@@ -243,7 +243,7 @@ const getEmbedUrl = (src, provider) => {
     const regex =
       /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
     const match = src.match(regex);
-    return match ? `https://www.youtube.com/embed/${match[1]}` : src;
+    return match ? `https://www.youtube-nocookie.com/embed/${match[1]}` : src;
   } else if (provider === "vimeo") {
     // Extract video ID from Vimeo URL
     const regex = /(?:vimeo\.com\/)([0-9]+)/;
