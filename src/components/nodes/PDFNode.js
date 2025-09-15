@@ -12,13 +12,14 @@ import {
 } from "lexical";
 import Image from "next/image";
 import { Resizable } from "re-resizable";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Rnd } from "react-rnd";
 
 const PDFComponent = ({ src, alt, nodeKey, width, height }) => {
   const [editor] = useLexicalComposerContext();
   const [isSelected, setSelected, clearSelection] =
     useLexicalNodeSelection(nodeKey);
+  const iframeRef = useRef(null);
 
   useEffect(() => {
     return editor.registerCommand(
@@ -38,10 +39,21 @@ const PDFComponent = ({ src, alt, nodeKey, width, height }) => {
   }, [editor, isSelected, nodeKey]);
 
   const onResizeStop = (e, direction, ref, delta, position) => {
+    iframeRef.current.src = src;
     editor.update(() => {
+      const editorWidth =
+        editor.getRootElement().getBoundingClientRect().width - 16 - 4; // p-2 and b-2 editor padding
       const node = $getNodeByKey(nodeKey);
+      // console.log(
+      //   "Computed:",
+      //   ref.offsetWidth,
+      //   "/",
+      //   editorWidth,
+      //   "=",
+      //   ref.offsetWidth / editorWidth
+      // );
       if (node) {
-        node.setWidth(ref.offsetWidth);
+        node.setWidth((ref.offsetWidth / editorWidth) * 100.0);
         node.setHeight(ref.offsetHeight);
       }
     });
@@ -58,25 +70,36 @@ const PDFComponent = ({ src, alt, nodeKey, width, height }) => {
   };
 
   return (
+    // <div className="flex justify-center h-auto">
     <Resizable
+      size={{ width: `${width}%`, height: `${height}px` }}
       onClick={onClick}
-      defaultSize={{ height: "auto" }}
+      // onResize={(e, dir, ref, d) => {
+      //   const widthChanging = ["right", "left", "bottomRight", "bottomLeft"];
+      //   if (widthChanging.includes(dir)) {
+      //     console.log("Found Dir:", dir);
+      //     ref.style.width = `${ref.offsetWidth + d.width * 1}px`;
+      //   }
+      //   iframeRef.current.src = "";
+      // }}
       onResizeStop={onResizeStop}
-      minHeight={200}
-      minWidth={300}
+      minHeight={150}
+      minWidth={200}
       maxWidth="100%"
       bounds="parent"
-      className={`inline-block bg-blue-100 items-center justify-center ${
+      className={`inline-block bg-blue-100 ${
         isSelected ? "ring-4 ring-blue-500" : ""
       }`}
     >
       <iframe
-        src="/data/test.pdf"
+        ref={iframeRef}
+        src={src}
         className="b-0 grow mx-auto w-full h-full pointer-events-auto"
         title="PDF Viewer"
         onClick={onClick}
       ></iframe>
     </Resizable>
+    // </div>
   );
 };
 
@@ -101,8 +124,8 @@ export class PDFNode extends DecoratorNode {
     super(key);
     this.__src = src;
     this.__title = title;
-    this.__width = width || 600;
-    this.__height = height || 400;
+    this.__width = width || 100; // in %
+    this.__height = height || 400; // in px
   }
   exportJSON() {
     return {
@@ -147,16 +170,16 @@ export class PDFNode extends DecoratorNode {
   exportDOM() {
     // can't use react components.
     const imgParentElement = document.createElement("div");
-    imgParentElement.className = "flex justify-center relative";
+    imgParentElement.className = "inline-block text-center relative w-full";
 
     const imgElement = document.createElement("iframe");
     imgElement.setAttribute("src", this.__src);
     if (this.__title) {
       imgElement.setAttribute("title", this.__title);
     }
-    imgElement.style.width = this.__width + "px";
+    imgElement.style.width = this.__width + "%";
     imgElement.style.height = this.__height + "px";
-    imgElement.className = "b-0 grow mx-auto absolute top-0";
+    imgElement.className = "b-0 grow mx-auto pointer-events-auto";
 
     imgParentElement.appendChild(imgElement);
     // return should have "element" property
@@ -198,7 +221,7 @@ export class PDFNode extends DecoratorNode {
   }
 }
 
-export function $createPDFNode({ src, title, width = 600, height = 400 }) {
+export function $createPDFNode({ src, title, width = 100, height = 400 }) {
   return new PDFNode(src, title, width, height);
 }
 
