@@ -3,11 +3,11 @@ import Editor from "@/components/Editor";
 
 const page = () => {
   return (
-    <>
-      <h1>Lexical Text Editor</h1>
-      <p>Test: formatting text below</p>
+    <div className="p-8">
+      <h1 className="font-bold text-2xl">Lexical Text Editor</h1>
+      <p className="italic mb-4">Test: formatting text below</p>
       <Editor />
-    </>
+    </div>
   );
 };
 

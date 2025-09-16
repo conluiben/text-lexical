@@ -8,19 +8,17 @@ import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { useEffect, useState } from "react";
 import { $createHeadingNode, HeadingNode } from "@lexical/rich-text";
-import {
-  $createTextNode,
-  $getRoot,
-  $getSelection,
-  $isRangeSelection,
-} from "lexical";
+import { $getSelection, $isElementNode, $isRangeSelection } from "lexical";
 import { $setBlocksType } from "@lexical/selection";
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
+import { NodeEventPlugin } from "@lexical/react/LexicalNodeEventPlugin";
 import {
+  $isListNode,
   INSERT_ORDERED_LIST_COMMAND,
   INSERT_UNORDERED_LIST_COMMAND,
   ListItemNode,
   ListNode,
+  REMOVE_LIST_COMMAND,
 } from "@lexical/list";
 import BoldToolbarPlugin from "./BoldToolbarPlugin";
 import ItalicToolbarPlugin from "./ItalicToolbarPlugin";
@@ -28,6 +26,14 @@ import { ImageNode } from "./nodes/ImageNode";
 import ImageToolbarPlugin from "./ImageToolbarPlugin";
 import { $generateHtmlFromNodes } from "@lexical/html";
 import ExportButton from "./ExportButton";
+import { $findMatchingParent } from "@lexical/utils";
+import { LinkNode } from "@lexical/link";
+import AlignmentToolbarPlugin from "./AlignmentToolbarPlugin";
+import { PDFNode } from "./nodes/PDFNode";
+import PDFToolbarPlugin from "./PDFToolbarPlugin";
+import { VideoNode } from "./nodes/VideoNode";
+import VideoToolbarPlugin from "./VideoToolbarPlugin";
+import { VideoPlugin } from "./VideoPlugin";
 
 const theme = {
   paragraph: "mb-0",
@@ -88,7 +94,7 @@ const HeadingPlugin = () => {
       {headings.map((aHeading, idx) => (
         <button
           onClick={() => onClick(aHeading)}
-          className="px-3 py-2 bg-orange-100 hover:bg-orange-200 hover:cursor-pointer"
+          className="px-3 py-2 bg-orange-100 hover:bg-orange-200"
           key={idx}
         >
           {aHeading.toUpperCase()}
@@ -99,9 +105,36 @@ const HeadingPlugin = () => {
 };
 
 const ListToolbarPlugin = () => {
-  const lists = ["ol", "ul"];
   const [editor] = useLexicalComposerContext();
+  const [activeListType, setActiveListType] = useState(null);
+
+  useEffect(() => {
+    return editor.registerUpdateListener(({ editorState }) => {
+      editorState.read(() => {
+        const selection = $getSelection();
+        if (!$isRangeSelection(selection)) {
+          return;
+        }
+        const anchorNode = selection.anchor.getNode();
+        const parentList = $findMatchingParent(anchorNode, (n) =>
+          $isListNode(n) ? true : $isElementNode(n) && n.getType() === "root"
+        );
+        if ($isListNode(parentList)) {
+          setActiveListType(parentList.getTag()); // returns "ol" or "ul"
+        } else {
+          setActiveListType(null);
+        }
+      });
+    });
+  });
+
+  const lists = ["ol", "ul"];
   const onClick = (tag) => {
+    if (activeListType === tag) {
+      // remove if already active
+      editor.dispatchCommand(REMOVE_LIST_COMMAND, undefined);
+      return;
+    }
     if (tag === "ol") {
       editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
       return;
@@ -115,7 +148,9 @@ const ListToolbarPlugin = () => {
       {lists.map((aList, idx) => (
         <button
           onClick={() => onClick(aList)}
-          className="px-3 py-2 bg-green-100 hover:bg-green-200 hover:cursor-pointer"
+          className={`px-3 py-2 hover:bg-green-200 ${
+            activeListType === aList ? "bg-green-200" : "bg-green-100"
+          }`}
           key={idx}
         >
           {aList.toUpperCase()}
@@ -129,20 +164,36 @@ const Editor = () => {
     namespace: "MyEditor",
     theme,
     onError,
-    nodes: [HeadingNode, ListNode, ListItemNode, ImageNode],
+    nodes: [HeadingNode, ListNode, ListItemNode, ImageNode, PDFNode, VideoNode],
   };
   const [htmlString, setHtmlString] = useState({ __html: "" });
 
   return (
     <div>
       <LexicalComposer initialConfig={initialConfig}>
-        <HeadingPlugin />
-        <ListPlugin />
-        <ListToolbarPlugin />
-        <BoldToolbarPlugin />
-        <ItalicToolbarPlugin />
-        <ImageToolbarPlugin />
-        <div className="relative">
+        <NodeEventPlugin
+          nodeType={LinkNode}
+          eventType={"click"}
+          eventListener={(e) => {
+            alert("Nice!");
+          }}
+        />
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex">
+            <HeadingPlugin />
+            <ListToolbarPlugin />
+            <AlignmentToolbarPlugin />
+            <BoldToolbarPlugin />
+            <ItalicToolbarPlugin />
+            <ImageToolbarPlugin />
+            <ListPlugin />
+            <PDFToolbarPlugin />
+            <VideoPlugin />
+            <VideoToolbarPlugin />
+          </div>
+          <ExportButton updateHtml={setHtmlString} />
+        </div>
+        <div className="relative mb-8">
           <RichTextPlugin
             contentEditable={
               <ContentEditable
@@ -165,13 +216,13 @@ const Editor = () => {
             console.log(editorState);
           }}
         />
-        <div className="bg-orange-200 content">
-          <h1>Your content goes here</h1>
-          {/* <button onClick={handleClickExport} className="bg-red-200 p-4">
-            Export Content
-          </button> */}
-          <ExportButton updateHtml={setHtmlString} />
-          <div dangerouslySetInnerHTML={htmlString}></div>
+        <div className="bg-orange-50 content p-4">
+          <h1 className="text-2xl font-bold mb-2">Content Preview</h1>
+
+          <div
+            dangerouslySetInnerHTML={htmlString}
+            className="p-4 bg-white"
+          ></div>
         </div>
       </LexicalComposer>
     </div>
