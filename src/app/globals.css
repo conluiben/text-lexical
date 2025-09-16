@@ -7,3 +7,10 @@ body {
 button {
   @apply hover:cursor-pointer duration-200;
 }
+
+.toolbar-item {
+  @apply flex p-2 hover:bg-slate-200 text-sm rounded-md;
+}
+.toolbar-item.active-format {
+  @apply flex bg-slate-200;
+}
