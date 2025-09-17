@@ -34,6 +34,8 @@ import PDFToolbarPlugin from "./PDFToolbarPlugin";
 import { VideoNode } from "./nodes/VideoNode";
 import VideoToolbarPlugin from "./VideoToolbarPlugin";
 import { VideoPlugin } from "./VideoPlugin";
+import ToolbarPlugin from "./ToolbarPlugin";
+import { ImagePlugin } from "./ImagePlugin";
 
 const theme = {
   paragraph: "mb-0",
@@ -53,7 +55,7 @@ const theme = {
     bold: "font-semibold",
     italic: "italic",
     underline: "underline",
-    code: "rounded bg-zinc-100 px-1 py-0.5 font-mono text-[0.95em] dark:bg-zinc-800",
+    code: "rounded bg-zinc-200 px-1 py-0.5 font-mono text-[0.95em] dark:bg-zinc-800",
   },
 };
 
@@ -178,44 +180,49 @@ const Editor = () => {
             alert("Nice!");
           }}
         />
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex">
-            <HeadingPlugin />
-            <ListToolbarPlugin />
-            <AlignmentToolbarPlugin />
-            <BoldToolbarPlugin />
-            <ItalicToolbarPlugin />
-            <ImageToolbarPlugin />
+        <div className="flex flex-col rounded-lg overflow-hidden mb-8">
+          {/* editor toolbar + textarea */}
+          <div className="flex items-stretch justify-between bg-slate-100">
+            <ToolbarPlugin />
             <ListPlugin />
-            <PDFToolbarPlugin />
+            <ImagePlugin />
             <VideoPlugin />
-            <VideoToolbarPlugin />
+            <div className="flex">
+              {/* <HeadingPlugin />
+              <ListToolbarPlugin />
+              <AlignmentToolbarPlugin />
+              <BoldToolbarPlugin />
+              <ItalicToolbarPlugin />
+              <ImageToolbarPlugin />
+              <PDFToolbarPlugin />
+              <VideoToolbarPlugin /> */}
+            </div>
+            <ExportButton updateHtml={setHtmlString} />
           </div>
-          <ExportButton updateHtml={setHtmlString} />
-        </div>
-        <div className="relative mb-8">
-          <RichTextPlugin
-            contentEditable={
-              <ContentEditable
-                className="p-2 bg-slate-100 border border-slate-200 border-2"
-                aria-placeholder={"Enter some text..."}
-                placeholder={
-                  <div className="absolute top-0 mt-2 ml-2">
-                    Enter some text...
-                  </div>
-                }
-              />
-            }
-            ErrorBoundary={LexicalErrorBoundary}
+          <div className="relative">
+            <RichTextPlugin
+              contentEditable={
+                <ContentEditable
+                  className="p-2 bg-slate-100 border border-slate-200 border-2"
+                  aria-placeholder={"Enter some text..."}
+                  placeholder={
+                    <div className="absolute top-0 mt-2 ml-2">
+                      Enter some text...
+                    </div>
+                  }
+                />
+              }
+              ErrorBoundary={LexicalErrorBoundary}
+            />
+          </div>
+          <HistoryPlugin />
+          <AutoFocusPlugin />
+          <MyOnChangePlugin
+            onChange={(editorState) => {
+              console.log(editorState);
+            }}
           />
         </div>
-        <HistoryPlugin />
-        <AutoFocusPlugin />
-        <MyOnChangePlugin
-          onChange={(editorState) => {
-            console.log(editorState);
-          }}
-        />
         <div className="bg-orange-50 content p-4">
           <h1 className="text-2xl font-bold mb-2">Content Preview</h1>
 
