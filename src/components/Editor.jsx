@@ -183,6 +183,8 @@ const Editor = () => {
           {/* editor toolbar + textarea */}
           <div className="flex items-stretch justify-between bg-slate-100">
             <ToolbarPlugin />
+            <ListPlugin />
+            <VideoPlugin />
             <div className="flex">
               {/* <HeadingPlugin />
               <ListToolbarPlugin />
@@ -190,9 +192,7 @@ const Editor = () => {
               <BoldToolbarPlugin />
               <ItalicToolbarPlugin />
               <ImageToolbarPlugin />
-              <ListPlugin />
               <PDFToolbarPlugin />
-              <VideoPlugin />
               <VideoToolbarPlugin /> */}
             </div>
             <ExportButton updateHtml={setHtmlString} />

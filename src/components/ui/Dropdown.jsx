@@ -13,6 +13,7 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import { isDOMNode } from "lexical";
+import { FaChevronDown } from "react-icons/fa6";
 
 const DropDownContext = createContext(null);
 
@@ -36,7 +37,7 @@ export function DropDownItem({ children, className, onClick, title }) {
 
   return (
     <button
-      className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition"
+      className="w-auto text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition"
       // className={className}
       onClick={onClick}
       ref={ref}
@@ -104,8 +105,7 @@ function DropDownItems({ children, dropDownRef, onClose }) {
   return (
     <DropDownContext.Provider value={contextValue}>
       <div
-        className="absolute z-50 mt-1 min-w-[150px] rounded-md border border-gray-200 bg-white shadow-lg dark:bg-gray-900 dark:border-gray-700"
-        // className="dropdown fixed min-h-[40px] bg-blue-200"
+        className="absolute flex flex-col z-50 mt-1 min-w-[150px] rounded-md border border-gray-200 bg-white shadow-lg dark:bg-gray-900 dark:border-gray-700"
         ref={dropDownRef}
         onKeyDown={handleKeyDown}
       >
@@ -120,7 +120,7 @@ export function DropDown({
   buttonLabel,
   buttonAriaLabel,
   buttonClassName,
-  buttonIconClassName,
+  buttonIcon,
   children,
   stopCloseOnClickSelf,
 }) {
@@ -204,15 +204,19 @@ export function DropDown({
         disabled={disabled}
         aria-label={buttonAriaLabel || buttonLabel}
         // className={buttonClassName}
-        className="flex items-center gap-1 rounded-md border border-gray-300 bg-white px-3 py-1 text-sm shadow-sm hover:bg-gray-50 disabled:opacity-50 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700 dark:hover:bg-gray-700"
+        className="flex items-center justify-between gap-3 rounded-md border border-gray-300 bg-white px-3 py-1 text-sm shadow-sm hover:bg-gray-50 disabled:opacity-50 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700 dark:hover:bg-gray-700"
         onClick={() => setShowDropDown(!showDropDown)}
         ref={buttonRef}
       >
-        {buttonIconClassName && <span className={buttonIconClassName} />}
-        {buttonLabel && (
-          <span className="text dropdown-button-text">{buttonLabel}</span>
-        )}
-        <i className="chevron-down" />
+        <div className="flex gap-2">
+          {buttonIcon && <span className="text-lg">{buttonIcon}</span>}
+          {buttonLabel && (
+            <span className="text dropdown-button-text">{buttonLabel}</span>
+          )}
+        </div>
+        <p className="text-xs">
+          <FaChevronDown />
+        </p>
       </button>
 
       {showDropDown &&
