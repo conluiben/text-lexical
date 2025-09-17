@@ -10,67 +10,9 @@ import {
   DRAGSTART_COMMAND,
   DROP_COMMAND,
 } from "lexical";
-import Image from "next/image";
 import { Resizable } from "re-resizable";
 import { useEffect } from "react";
 import { Rnd } from "react-rnd";
-
-const useImageDragDrop = (nodeKey) => {
-  const [editor] = useLexicalComposerContext();
-
-  useEffect(() => {
-    // Start dragging
-    const removeDragStart = editor.registerCommand(
-      DRAGSTART_COMMAND,
-      (event) => {
-        const node = $getNodeByKey(nodeKey);
-        if (node && event.dataTransfer) {
-          event.dataTransfer.setData("image-node", nodeKey);
-          return true;
-        }
-        return false;
-      },
-      COMMAND_PRIORITY_HIGH
-    );
-
-    // Handle drag over (cursor positioning is automatic)
-    const removeDragOver = editor.registerCommand(
-      DRAGOVER_COMMAND,
-      () => true,
-      COMMAND_PRIORITY_HIGH
-    );
-
-    // Handle drop
-    const removeDrop = editor.registerCommand(
-      DROP_COMMAND,
-      (event) => {
-        const key = event.dataTransfer?.getData("image-node");
-        if (key) {
-          editor.update(() => {
-            const node = $getNodeByKey(key);
-            if (node) {
-              // Reinsert at selection
-              node.remove();
-              const selection = $getSelection();
-              if (selection) {
-                selection.insertNodes([node]);
-              }
-            }
-          });
-          return true;
-        }
-        return false;
-      },
-      COMMAND_PRIORITY_HIGH
-    );
-
-    return () => {
-      removeDragStart();
-      removeDragOver();
-      removeDrop();
-    };
-  }, [editor, nodeKey]);
-};
 
 const ImageComponent = ({
   src,
@@ -83,8 +25,6 @@ const ImageComponent = ({
   const [editor] = useLexicalComposerContext();
   const [isSelected, setSelected, clearSelection] =
     useLexicalNodeSelection(nodeKey);
-
-  // useImageDragDrop(nodeKey);
 
   useEffect(() => {
     return editor.registerCommand(
@@ -105,9 +45,11 @@ const ImageComponent = ({
 
   const onResizeStop = (e, direction, ref, delta, position) => {
     editor.update(() => {
+      const editorWidth =
+        editor.getRootElement().getBoundingClientRect().width - 16 - 4; // p-2 and b-2 editor padding
       const node = $getNodeByKey(nodeKey);
       if (node) {
-        node.setWidth(ref.offsetWidth);
+        node.setWidth((ref.offsetWidth / editorWidth) * 100.0);
         node.setHeight(ref.offsetHeight);
       }
     });
@@ -125,10 +67,10 @@ const ImageComponent = ({
   return (
     // <div className={`flex justify-${alignment} h-full`}>
     <Resizable
-      onClick={onClick}
+      size={{ width: `${width}%`, height: "auto" }}
       defaultSize={{ height: "auto" }}
       bounds="parent"
-      className={`border inline-block justify-${alignment} ${
+      className={`border inline-block ${
         isSelected ? "ring-2 ring-blue-500" : ""
       }`}
       minWidth={100}
@@ -136,16 +78,13 @@ const ImageComponent = ({
       minHeight={100}
       lockAspectRatio
       onResizeStop={onResizeStop}
+      onClick={onClick}
     >
-      <Image
+      <img
         src={src}
         alt={alt}
-        width={width}
-        height={height}
-        draggable={false}
+        className="b-0 grow mx-auto w-full h-full pointer-events-auto"
       />
-      {/* <Image src={src} alt={alt} width={width} height={height} /> */}
-      {/* </div> */}
     </Resizable>
   );
 };
@@ -182,6 +121,7 @@ export class ImageNode extends DecoratorNode {
       version: 1,
       src: this.__src,
       alt: this.__alt,
+      width: this.__width,
     };
   }
   createDOM() {
@@ -218,15 +158,15 @@ export class ImageNode extends DecoratorNode {
   exportDOM() {
     // can't use react components.
     const imgParentElement = document.createElement("div");
-    imgParentElement.className = "flex justify-" + this.__alignment;
+    imgParentElement.className = "flex justify-center";
 
     const imgElement = document.createElement("img");
     imgElement.setAttribute("src", this.__src);
     if (this.__alt) {
       imgElement.setAttribute("alt", this.__alt);
     }
-    imgElement.style.width = this.__width + "px";
-    imgElement.style.height = this.__height + "px";
+    imgElement.style.width = this.__width + "%";
+    imgElement.style.height = auto;
     imgElement.style.objectFit = "cover";
     imgElement.className = "my-4";
 
@@ -246,9 +186,9 @@ export class ImageNode extends DecoratorNode {
       />
     );
   }
-  isIsolated() {
-    return true;
-  }
+  // isIsolated() {
+  //   return true;
+  // }
 
   // Prevent merging into other nodes (common for images)
   isInline() {
@@ -271,7 +211,7 @@ export class ImageNode extends DecoratorNode {
   }
 }
 
-export function $createImageNode({ src, alt, width = 600, height = 400 }) {
+export function $createImageNode({ src, alt, width = 100, height = 400 }) {
   return new ImageNode(src, alt, width, height);
 }
 

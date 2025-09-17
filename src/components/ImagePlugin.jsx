@@ -47,11 +47,11 @@ export const ImagePlugin = () => {
     }
     wrapperElement.setFormat("center");
 
-    if (imageNode.getNextSibling() === null) {
+    if (wrapperElement.getNextSibling() === null) {
       const paragraph = $createParagraphNode();
-      imageNode.insertAfter(paragraph);
+      wrapperElement.insertAfter(paragraph);
+      paragraph.select();
     }
-    imageNode.selectNext();
     return true;
   };
 
