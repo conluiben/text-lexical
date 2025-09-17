@@ -1,5 +1,6 @@
 import {
   $getSelection,
+  $isNodeSelection,
   $isRangeSelection,
   FORMAT_ELEMENT_COMMAND,
   FORMAT_TEXT_COMMAND,
@@ -30,6 +31,8 @@ import {
   formatNumberedList,
   formatParagraph,
 } from "@/utils/lexical";
+import { INSERT_VIDEO_COMMAND } from "./VideoPlugin";
+import { INSERT_IMAGE_COMMAND } from "./ImagePlugin";
 
 const ToolbarPlugin = () => {
   const [editor] = useLexicalComposerContext();
@@ -129,20 +132,21 @@ const ToolbarPlugin = () => {
     editor.registerUpdateListener(({ editorState }) => {
       editorState.read(() => {
         const selection = $getSelection();
-        const anchorNode = selection.anchor.getNode();
-        const anchorTopLevel = anchorNode.getTopLevelElementOrThrow();
 
-        // find block type (headings 1-3, ol/ul list, paragraph)
-        const blockType = anchorTopLevel.getType();
-        const blockTag =
-          typeof anchorTopLevel?.getTag === "function"
-            ? anchorTopLevel.getTag()
-            : null;
-
-        const alignment = anchorTopLevel.getFormatType() || "left"; // returns "left" | "right" | "center" | "justify"
-
-        const newTextFormatProps = {};
         if ($isRangeSelection(selection)) {
+          const anchorNode = selection.anchor.getNode();
+          const anchorTopLevel = anchorNode.getTopLevelElementOrThrow();
+
+          // find block type (headings 1-3, ol/ul list, paragraph)
+          const blockType = anchorTopLevel.getType();
+          const blockTag =
+            typeof anchorTopLevel?.getTag === "function"
+              ? anchorTopLevel.getTag()
+              : null;
+
+          const alignment = anchorTopLevel.getFormatType() || "left"; // returns "left" | "right" | "center" | "justify"
+
+          const newTextFormatProps = {};
           for (let key in textFormatProps.format) {
             if (textFormatProps.format.hasOwnProperty(key)) {
               newTextFormatProps[key] = selection.hasFormat(key);
@@ -156,6 +160,7 @@ const ToolbarPlugin = () => {
             alignment,
             format: newTextFormatProps,
           }));
+        } else if ($isNodeSelection(selection)) {
         }
       });
     });
@@ -279,13 +284,39 @@ const ToolbarPlugin = () => {
       <DropDown buttonLabel="Insert" buttonClassName="toolbar-item">
         <DropDownItem
           className="item"
-          onClick={() => console.log("Insert Image")}
+          onClick={() => {
+            const url = prompt("Enter image URL");
+            if (url) {
+              editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
+                src: url,
+                alt: "A user-inserted image",
+              });
+            }
+          }}
         >
           Insert Image
         </DropDownItem>
         <DropDownItem
           className="item"
-          onClick={() => console.log("Insert Video")}
+          onClick={() => {
+            const detectProvider = (url) => {
+              if (url.includes("youtube.com") || url.includes("youtu.be")) {
+                return "youtube";
+              }
+              if (url.includes("vimeo.com")) {
+                return "vimeo";
+              }
+              return null;
+            };
+            const url = prompt("Enter Video URL");
+            if (url) {
+              editor.dispatchCommand(INSERT_VIDEO_COMMAND, {
+                src: url,
+                provider: detectProvider(url),
+                title: "Hello world",
+              });
+            }
+          }}
         >
           Insert Video
         </DropDownItem>

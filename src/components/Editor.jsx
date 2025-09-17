@@ -35,6 +35,7 @@ import { VideoNode } from "./nodes/VideoNode";
 import VideoToolbarPlugin from "./VideoToolbarPlugin";
 import { VideoPlugin } from "./VideoPlugin";
 import ToolbarPlugin from "./ToolbarPlugin";
+import { ImagePlugin } from "./ImagePlugin";
 
 const theme = {
   paragraph: "mb-0",
@@ -184,6 +185,7 @@ const Editor = () => {
           <div className="flex items-stretch justify-between bg-slate-100">
             <ToolbarPlugin />
             <ListPlugin />
+            <ImagePlugin />
             <VideoPlugin />
             <div className="flex">
               {/* <HeadingPlugin />
