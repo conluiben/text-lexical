@@ -1,7 +1,16 @@
-import { $getSelection, $isRangeSelection, FORMAT_TEXT_COMMAND } from "lexical";
+import {
+  $getSelection,
+  $isRangeSelection,
+  FORMAT_ELEMENT_COMMAND,
+  FORMAT_TEXT_COMMAND,
+} from "lexical";
 import { Divider } from "./ui/Divider";
 import { DropDown, DropDownItem } from "./ui/Dropdown";
 import {
+  FaAlignCenter,
+  FaAlignJustify,
+  FaAlignLeft,
+  FaAlignRight,
   FaBold,
   FaCode,
   FaHighlighter,
@@ -35,6 +44,7 @@ const ToolbarPlugin = () => {
       highlight: false,
       code: false,
     },
+    alignment: "left",
   });
   const blockOptions = [
     {
@@ -86,6 +96,29 @@ const ToolbarPlugin = () => {
     },
   ];
 
+  const alignmentOptions = [
+    {
+      alignment: "left",
+      label: "Left",
+      icon: <FaAlignLeft />,
+    },
+    {
+      alignment: "center",
+      label: "Center",
+      icon: <FaAlignCenter />,
+    },
+    {
+      alignment: "right",
+      label: "Right",
+      icon: <FaAlignRight />,
+    },
+    {
+      alignment: "justify",
+      label: "Justify",
+      icon: <FaAlignJustify />,
+    },
+  ];
+
   const activeBlock = blockOptions.find(
     ({ blockType, blockTag }) =>
       textFormatProps.blockType === blockType &&
@@ -106,6 +139,8 @@ const ToolbarPlugin = () => {
             ? anchorTopLevel.getTag()
             : null;
 
+        const alignment = anchorTopLevel.getFormatType() || "left"; // returns "left" | "right" | "center" | "justify"
+
         const newTextFormatProps = {};
         if ($isRangeSelection(selection)) {
           for (let key in textFormatProps.format) {
@@ -118,6 +153,7 @@ const ToolbarPlugin = () => {
             ...prev,
             blockTag,
             blockType,
+            alignment,
             format: newTextFormatProps,
           }));
         }
@@ -219,6 +255,26 @@ const ToolbarPlugin = () => {
       >
         <FaCode />
       </button>
+      <Divider />
+      {alignmentOptions.map((anAlignmentOption, idx) => (
+        <button
+          key={idx}
+          onClick={() => {
+            editor.dispatchCommand(
+              FORMAT_ELEMENT_COMMAND,
+              anAlignmentOption.alignment
+            );
+          }}
+          title={anAlignmentOption.label}
+          className={`toolbar-item ${
+            textFormatProps.alignment === anAlignmentOption.alignment &&
+            "active-format"
+          }`}
+          aria-label={anAlignmentOption.label}
+        >
+          {anAlignmentOption.icon}
+        </button>
+      ))}
       <Divider />
       <DropDown buttonLabel="Insert" buttonClassName="toolbar-item">
         <DropDownItem
