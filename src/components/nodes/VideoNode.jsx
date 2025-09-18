@@ -212,25 +212,35 @@ const VideoComponent = ({ src, provider, width, height, title, nodeKey }) => {
     });
   };
 
+  const onClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    editor.update(() => {
+      clearSelection();
+      setSelected(true);
+    });
+  };
+
   return (
     <Resizable
-      size={{ width: `${width}%`, height: `${height}px` }}
+      defaultSize={{ width: `${width}%`, height: `${width}px` }}
       onResizeStop={onResizeStop}
       minHeight={150}
       minWidth={200}
       maxWidth="100%"
       bounds="parent"
-      className={`inline-block bg-slate-300 ${
-        isSelected ? "ring-4 ring-blue-500" : ""
+      className={`inline-block relative bg-slate-300 border-4 ${
+        isSelected ? "border-blue-500" : ""
       }`}
+      onClick={onClick}
     >
+      <div className="absolute top-0 left-0 w-full h-full bg-[rgba(0,0,0,0.3)]"></div>
       <iframe
         src={embedUrl}
-        className="b-0 grow mx-auto w-full h-full pointer-events-auto"
+        className="w-full h-full object-cover"
         title="Embedded Video"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         allowFullScreen
-        // onClick={onClick}
       ></iframe>
     </Resizable>
   );

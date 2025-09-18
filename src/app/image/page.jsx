@@ -13,22 +13,24 @@ const page = () => {
         vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra
         inceptos himenaeos.
       </p>
-      <Resizable
-        defaultSize={{ height: "auto" }}
-        bounds="parent"
-        className="border inline-block"
-        minWidth={100}
-        maxWidth="100%"
-        minHeight={100}
-        maxHeight="100%"
-        lockAspectRatio
-      >
-        <img
-          className="w-full h-full object-cover"
-          src="https://placehold.co/600x100/png?text=My+New+Post"
-          draggable="false"
-        />
-      </Resizable>
+      <div>
+        <Resizable
+          defaultSize={{ height: "auto" }}
+          bounds="parent"
+          className="border inline-block"
+          minWidth={100}
+          maxWidth="100%"
+          minHeight={100}
+          maxHeight="100%"
+          lockAspectRatio
+        >
+          <img
+            className="w-full h-full object-cover"
+            src="https://placehold.co/600x100/png?text=My+New+Post"
+            draggable="false"
+          />
+        </Resizable>
+      </div>
       <p>
         Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus
         ex sapien vitae pellentesque sem placerat. In id cursus mi pretium

@@ -67,8 +67,7 @@ const ImageComponent = ({
   return (
     // <div className={`flex justify-${alignment} h-full`}>
     <Resizable
-      size={{ width: `${width}%`, height: "auto" }}
-      defaultSize={{ height: "auto" }}
+      defaultSize={{ width: `${width}%`, height: "auto" }}
       bounds="parent"
       className={`border inline-block ${
         isSelected ? "ring-2 ring-blue-500" : ""
@@ -83,7 +82,8 @@ const ImageComponent = ({
       <img
         src={src}
         alt={alt}
-        className="b-0 grow mx-auto w-full h-full pointer-events-auto"
+        className="w-full h-full object-cover"
+        draggable={false}
       />
     </Resizable>
   );
@@ -166,7 +166,7 @@ export class ImageNode extends DecoratorNode {
       imgElement.setAttribute("alt", this.__alt);
     }
     imgElement.style.width = this.__width + "%";
-    imgElement.style.height = auto;
+    imgElement.style.height = "auto";
     imgElement.style.objectFit = "cover";
     imgElement.className = "my-4";
 

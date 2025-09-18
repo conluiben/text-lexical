@@ -40,7 +40,6 @@ export const ImagePlugin = () => {
     let wrapperElement = null;
 
     if ($isRootOrShadowRoot(imageNode.getParentOrThrow())) {
-      // $wrapNodeInElement(imageNode, $createParagraphNode).selectEnd();
       wrapperElement = $wrapNodeInElement(imageNode, $createParagraphNode);
     } else {
       wrapperElement = imageNode.getParent();
