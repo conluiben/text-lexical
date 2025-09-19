@@ -36,6 +36,7 @@ import VideoToolbarPlugin from "./VideoToolbarPlugin";
 import { VideoPlugin } from "./VideoPlugin";
 import ToolbarPlugin from "./ToolbarPlugin";
 import { ImagePlugin } from "./ImagePlugin";
+import { Modal } from "./ui/Modal";
 
 const theme = {
   paragraph: "mb-0",

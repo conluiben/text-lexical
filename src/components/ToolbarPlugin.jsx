@@ -33,6 +33,9 @@ import {
 } from "@/utils/lexical";
 import { INSERT_VIDEO_COMMAND } from "./VideoPlugin";
 import { INSERT_IMAGE_COMMAND } from "./ImagePlugin";
+import { Modal } from "./ui/Modal";
+import ImageModal from "./ui/ImageModal";
+import VideoModal from "./ui/VideoModal";
 
 const ToolbarPlugin = () => {
   const [editor] = useLexicalComposerContext();
@@ -49,6 +52,7 @@ const ToolbarPlugin = () => {
     },
     alignment: "left",
   });
+  const [modalType, setModalType] = useState(null); // null for hidden modal, or "image"/"video"/"pdf"/etc.
   const blockOptions = [
     {
       blockType: "paragraph",
@@ -167,161 +171,157 @@ const ToolbarPlugin = () => {
   }, [editor]);
 
   return (
-    <div className="flex items-stretch p-2">
-      <DropDown buttonIcon={activeBlock.icon} buttonLabel={activeBlock.text}>
-        {blockOptions.map((aBlockOption, idx) => (
-          <DropDownItem
-            key={idx}
-            onClick={() =>
-              aBlockOption.formatBlock({
-                editor,
-                blockType: textFormatProps.blockType,
-                blockTag: textFormatProps.blockTag,
-              })
-            }
-          >
-            <div className="flex items-center gap-2">
-              <span className="text-lg">{aBlockOption.icon}</span>
-              <span>{aBlockOption.text}</span>
-            </div>
-          </DropDownItem>
-        ))}
-      </DropDown>
-      <Divider />
-      <button
-        onClick={() => {
-          editor.dispatchCommand(FORMAT_TEXT_COMMAND, "bold");
-        }}
-        title="Bold"
-        className={`toolbar-item ${
-          textFormatProps.format.bold && "active-format"
-        }`}
-        aria-label="Bold"
-      >
-        <FaBold />
-      </button>
-      <button
-        onClick={() => {
-          editor.dispatchCommand(FORMAT_TEXT_COMMAND, "italic");
-        }}
-        title="Italic"
-        className={`toolbar-item ${
-          textFormatProps.format.italic && "active-format"
-        }`}
-        aria-label="Italic"
-      >
-        <FaItalic />
-      </button>
-      <button
-        onClick={() => {
-          editor.dispatchCommand(FORMAT_TEXT_COMMAND, "underline");
-        }}
-        title="Underline"
-        className={`toolbar-item ${
-          textFormatProps.format.underline && "active-format"
-        }`}
-        aria-label="Underline"
-      >
-        <FaUnderline />
-      </button>
-      <button
-        onClick={() => {
-          editor.dispatchCommand(FORMAT_TEXT_COMMAND, "strikethrough");
-        }}
-        title="Strikethrough"
-        className={`toolbar-item ${
-          textFormatProps.format.strikethrough && "active-format"
-        }`}
-        aria-label="Strikethrough"
-      >
-        <FaStrikethrough />
-      </button>
-      <button
-        onClick={() => {
-          editor.dispatchCommand(FORMAT_TEXT_COMMAND, "highlight");
-        }}
-        title="Highlight"
-        className={`toolbar-item ${
-          textFormatProps.format.highlight && "active-format"
-        }`}
-        aria-label="Highlight"
-      >
-        <FaHighlighter />
-      </button>
-      <button
-        onClick={() => {
-          editor.dispatchCommand(FORMAT_TEXT_COMMAND, "code");
-        }}
-        title="Code"
-        className={`toolbar-item ${
-          textFormatProps.format.code && "active-format"
-        }`}
-        aria-label="Code"
-      >
-        <FaCode />
-      </button>
-      <Divider />
-      {alignmentOptions.map((anAlignmentOption, idx) => (
+    <>
+      <div className="flex items-stretch p-2">
+        <DropDown buttonIcon={activeBlock.icon} buttonLabel={activeBlock.text}>
+          {blockOptions.map((aBlockOption, idx) => (
+            <DropDownItem
+              key={idx}
+              onClick={() =>
+                aBlockOption.formatBlock({
+                  editor,
+                  blockType: textFormatProps.blockType,
+                  blockTag: textFormatProps.blockTag,
+                })
+              }
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-lg">{aBlockOption.icon}</span>
+                <span>{aBlockOption.text}</span>
+              </div>
+            </DropDownItem>
+          ))}
+        </DropDown>
+        <Divider />
         <button
-          key={idx}
           onClick={() => {
-            editor.dispatchCommand(
-              FORMAT_ELEMENT_COMMAND,
-              anAlignmentOption.alignment
-            );
+            editor.dispatchCommand(FORMAT_TEXT_COMMAND, "bold");
           }}
-          title={anAlignmentOption.label}
+          title="Bold"
           className={`toolbar-item ${
-            textFormatProps.alignment === anAlignmentOption.alignment &&
-            "active-format"
+            textFormatProps.format.bold && "active-format"
           }`}
-          aria-label={anAlignmentOption.label}
+          aria-label="Bold"
         >
-          {anAlignmentOption.icon}
+          <FaBold />
         </button>
-      ))}
-      <Divider />
-      <DropDown buttonLabel="Insert" buttonClassName="toolbar-item">
-        <DropDownItem
-          className="item"
+        <button
           onClick={() => {
-            const url = prompt("Enter image URL");
-            if (url) {
-              editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
-                src: url,
-                alt: "A user-inserted image",
-              });
-            }
+            editor.dispatchCommand(FORMAT_TEXT_COMMAND, "italic");
           }}
+          title="Italic"
+          className={`toolbar-item ${
+            textFormatProps.format.italic && "active-format"
+          }`}
+          aria-label="Italic"
         >
-          Insert Image
-        </DropDownItem>
-        <DropDownItem
-          className="item"
+          <FaItalic />
+        </button>
+        <button
           onClick={() => {
-            const detectProvider = (url) => {
-              if (url.includes("youtube.com") || url.includes("youtu.be")) {
-                return "youtube";
-              }
-              if (url.includes("vimeo.com")) {
-                return "vimeo";
-              }
-              return null;
-            };
-            const url = prompt("Enter Video URL");
-            if (url) {
-              editor.dispatchCommand(INSERT_VIDEO_COMMAND, {
-                src: url,
-                provider: detectProvider(url),
-                title: "Hello world",
-              });
-            }
+            editor.dispatchCommand(FORMAT_TEXT_COMMAND, "underline");
           }}
+          title="Underline"
+          className={`toolbar-item ${
+            textFormatProps.format.underline && "active-format"
+          }`}
+          aria-label="Underline"
         >
-          Insert Video
-        </DropDownItem>
-      </DropDown>
-    </div>
+          <FaUnderline />
+        </button>
+        <button
+          onClick={() => {
+            editor.dispatchCommand(FORMAT_TEXT_COMMAND, "strikethrough");
+          }}
+          title="Strikethrough"
+          className={`toolbar-item ${
+            textFormatProps.format.strikethrough && "active-format"
+          }`}
+          aria-label="Strikethrough"
+        >
+          <FaStrikethrough />
+        </button>
+        <button
+          onClick={() => {
+            editor.dispatchCommand(FORMAT_TEXT_COMMAND, "highlight");
+          }}
+          title="Highlight"
+          className={`toolbar-item ${
+            textFormatProps.format.highlight && "active-format"
+          }`}
+          aria-label="Highlight"
+        >
+          <FaHighlighter />
+        </button>
+        <button
+          onClick={() => {
+            editor.dispatchCommand(FORMAT_TEXT_COMMAND, "code");
+          }}
+          title="Code"
+          className={`toolbar-item ${
+            textFormatProps.format.code && "active-format"
+          }`}
+          aria-label="Code"
+        >
+          <FaCode />
+        </button>
+        <Divider />
+        {alignmentOptions.map((anAlignmentOption, idx) => (
+          <button
+            key={idx}
+            onClick={() => {
+              editor.dispatchCommand(
+                FORMAT_ELEMENT_COMMAND,
+                anAlignmentOption.alignment
+              );
+            }}
+            title={anAlignmentOption.label}
+            className={`toolbar-item ${
+              textFormatProps.alignment === anAlignmentOption.alignment &&
+              "active-format"
+            }`}
+            aria-label={anAlignmentOption.label}
+          >
+            {anAlignmentOption.icon}
+          </button>
+        ))}
+        <Divider />
+        <DropDown buttonLabel="Insert" buttonClassName="toolbar-item">
+          <DropDownItem
+            className="item"
+            onClick={() => {
+              setModalType("image");
+            }}
+          >
+            Insert Image
+          </DropDownItem>
+          <DropDownItem
+            className="item"
+            onClick={() => {
+              setModalType("video");
+            }}
+          >
+            Insert Video
+          </DropDownItem>
+        </DropDown>
+      </div>
+      {modalType === "image" && (
+        <ImageModal
+          onInsert={(payload) => {
+            editor.dispatchCommand(INSERT_IMAGE_COMMAND, payload);
+          }}
+          onClose={() => setModalType(null)}
+        />
+      )}
+      {modalType === "video" && (
+        <VideoModal
+          onInsert={(payload) => {
+            editor.dispatchCommand(INSERT_VIDEO_COMMAND, payload);
+          }}
+          onClose={() => setModalType(null)}
+        />
+      )}
+    </>
   );
 };
 

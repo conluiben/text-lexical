@@ -14,3 +14,16 @@ button {
 .toolbar-item.active-format {
   @apply flex bg-slate-200;
 }
+
+.form-input {
+  @apply flex flex-col w-full;
+}
+
+.form-input input,
+.form-input select {
+  @apply px-3 py-2 bg-white rounded-sm shadow-sm;
+}
+
+.form-input-row {
+  @apply flex gap-8 w-full;
+}
